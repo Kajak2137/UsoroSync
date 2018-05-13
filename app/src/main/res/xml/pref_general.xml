@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="share_switch"
+        android:summary="@string/share_summary"
+        android:title="@string/share_title" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="listener_switch"
+        android:summary="@string/listener_summary"
+        android:title="@string/listener_title" />
+
+
+</PreferenceScreen>
