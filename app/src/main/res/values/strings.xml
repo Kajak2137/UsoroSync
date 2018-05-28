@@ -1,19 +1,18 @@
 <resources>
     <!-- Usoro Sync Strings -->
     <string name="app_name">UsoroSync Prototype</string>
-    <string name="share_name">UsoroSync</string>
+    <string name="share_name">Share to UsoroSync</string>
     <string name="share_error">An error occurred during sending message: </string>
     <string name="server_offline">Couldn\'t find Usoro Listener, are you connected to the right network?</string>
     <string name="wifi_off"> Wi-Fi is off, please turn on Wi-Fi and connect to the same network as your other device.</string>
     <string name="message_sent">Shared successfully!</string>
-
+    <string name="in_progress">Sorry, this feature is not ready yet</string>
     <!-- Settings Strings -->
     <string name="pref_header_general">Sync Settings</string>
-    <string name="share_summary">Enable UsoroSync Link Sharing</string>
-    <string name="disable_share_summary">Disable UsoroSync Link Sharing</string>
+    <string name="share_summary">Enable UsoroSync Link Sync</string>
+    <string name="disable_share_summary">Disable UsoroSync Link Sync</string>
     <string name="share_title">Share to UsoroSync</string>
-    <string name="listener_title">UsoroSync Listener</string>
-    <string name="listener_summary">Enable UsoroSync Listener</string>
-    <string name="disable_listener_summary">Disable UsoroSync Listener</string>
-    <string name="in_progress">Sorry, this feature is not ready yet</string>
+    <string name="clipboard_title">Usoro Shared Clipboard</string>
+    <string name="enable_clipboard_summary">Enable Shared Clipboard</string>
+    <string name="disable_clipboard_summary">Disable Shared Clipboard</string>
 </resources>

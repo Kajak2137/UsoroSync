@@ -5,7 +5,9 @@ import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.callback.ConnectCallback;
 import com.koushikdutta.async.callback.DataCallback;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 
 public class Client {
@@ -14,7 +16,7 @@ public class Client {
     private final int port;
     private final String msg;
 
-    public Client(String msg) {
+    public Client(String msg) throws UnknownHostException {
         this.host = IPGetter.getIp();
         this.port = 1488;
         this.msg = msg;

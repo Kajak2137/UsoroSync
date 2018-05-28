@@ -15,6 +15,10 @@ import com.usoroos.usorosyncprototype.TCP.TCPServer;
 
 import java.util.List;
 
+import static com.usoroos.usorosyncprototype.ClipboardService.mRunning;
+import static com.usoroos.usorosyncprototype.TCP.TCPServer.mServerRunning;
+
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -26,9 +30,10 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
+@SuppressWarnings("ALL")
 public class MainActivity extends AppCompatPreferenceActivity  {
-    @SuppressLint("StaticFieldLeak")
-    private static Context mContext;
+    private static boolean clipboard = false;
+    private static boolean linksync = false;
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -38,30 +43,51 @@ public class MainActivity extends AppCompatPreferenceActivity  {
         public boolean onPreferenceChange(Preference preference, Object value) {
             String key=preference.getKey();
             if (key.equals("share_switch")) {
-                if (value.equals(true))
+                if (value.equals(true)) {
                     ReceiveActivity.EnableSharing();
+                    if (!mServerRunning)
+                        new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    new TCPServer();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
                     preference.setSummary(R.string.disable_share_summary);
-
+                    linksync = true;
+                }
                 if (value.equals(false))
                     ReceiveActivity.DisableSharing();
+                    if(mServerRunning && !clipboard)
+                        TCPServer.stop();
                     preference.setSummary(R.string.share_summary);
+                    linksync=false;
             }
-            if (key.equals("listener_switch")) {
-                if (value.equals(true))
-                    new Thread(new Runnable() {
-                        public void run() {
-                            try {
-                                new TCPServer();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
-                    preference.setSummary(R.string.disable_listener_summary);
 
+            if (key.equals("clipboard_switch")) {
+                if (value.equals(true) && !mRunning) {
+                    MyApp.getContext().startService(new Intent(MyApp.getContext(), ClipboardService.class));
+                    if (!mServerRunning)
+                        new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    new TCPServer();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    preference.setSummary(R.string.disable_clipboard_summary);
+                    clipboard = true;
+                }
                 if (value.equals(false))
-                    TCPServer.stop();
-                    preference.setSummary(R.string.listener_summary);
+                    MyApp.getContext().stopService(new Intent(MyApp.getContext(), ClipboardService.class));
+                    if(mServerRunning && !linksync)
+                        TCPServer.stop();
+                    preference.setSummary(R.string.enable_clipboard_summary);
+                    clipboard = false;
 
             }
             return true;
@@ -83,8 +109,9 @@ public class MainActivity extends AppCompatPreferenceActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = getBaseContext();
         setupActionBar();
+
+
     }
 
     private void setupActionBar() {
@@ -92,10 +119,6 @@ public class MainActivity extends AppCompatPreferenceActivity  {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-    }
-
-    public static Context getContext() {
-        return mContext;
     }
 
 
@@ -113,6 +136,7 @@ public class MainActivity extends AppCompatPreferenceActivity  {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName);
     }
 
+    @SuppressWarnings("EmptyMethod")
     public static class GeneralPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -120,7 +144,21 @@ public class MainActivity extends AppCompatPreferenceActivity  {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
             bindPreferenceSummaryToValue(findPreference("share_switch"));
-            bindPreferenceSummaryToValue(findPreference("listener_switch"));
+            bindPreferenceSummaryToValue(findPreference("clipboard_switch"));
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            if (clipboard && !mRunning) {
+                PreferenceManager.setDefaultValues(MyApp.getContext(), "clipboard_switch", Context.MODE_PRIVATE, R.xml.pref_general, true);
+                clipboard = false;
+            }
+
+            if (linksync && !mServerRunning) {
+                PreferenceManager.setDefaultValues(MyApp.getContext(), "share_switch", Context.MODE_PRIVATE, R.xml.pref_general, true);
+                linksync = false;
+            }
         }
 
         @Override

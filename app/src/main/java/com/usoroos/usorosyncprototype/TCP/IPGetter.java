@@ -2,6 +2,8 @@ package com.usoroos.usorosyncprototype.TCP;
 
 import android.util.Log;
 
+import com.usoroos.usorosyncprototype.getLocalIP;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -10,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +30,8 @@ import java.util.concurrent.Future;
 class IPGetter {
 
     private static final String TAG = "IpGetter";
+    private static String excludedNumbers = Objects.requireNonNull(getLocalIP.getIp()).substring(10);
+    private static int exclude = Integer.parseInt(excludedNumbers);
 
     /**
      * Method which should return one not-null object with String that is an ip number.
@@ -75,10 +80,10 @@ class IPGetter {
         final List<Future<String>> futures = new ArrayList<>() ;
 
 
-        for (int i = 0; i <= 255; i++) {
-
-            String ip = "192.168.1."+i;
-            futures.add(checkIfPortIsOpen(es, ip, port, timeout));
+        for (int i = 0; i <= 255;  i++) {
+                String ip  = "192.168.1"+i;
+            if(!Objects.equals(i,exclude))
+                futures.add(checkIfPortIsOpen(es, ip, port, timeout));
         }
         es.shutdown();
 

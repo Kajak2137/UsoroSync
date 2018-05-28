@@ -4,9 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,16 +12,21 @@ import android.widget.Toast;
 
 import com.usoroos.usorosyncprototype.TCP.Client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.util.Objects;
 
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
 import static com.usoroos.usorosyncprototype.ExtractUrl.extractUrl;
+import static com.usoroos.usorosyncprototype.R.string;
+import static com.usoroos.usorosyncprototype.R.string.message_sent;
+import static com.usoroos.usorosyncprototype.R.string.server_offline;
+import static com.usoroos.usorosyncprototype.R.string.share_error;
+import static com.usoroos.usorosyncprototype.R.string.wifi_off;
 
-@SuppressWarnings("unused")
 public class ReceiveActivity extends AppCompatActivity {
-    private WifiManager wifi;
-    String TAG = "UsoroShareReceiver";
+    private static final String TAG = "UsoroShareReceiver";
+    static WifiManager wifi;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,9 +34,6 @@ public class ReceiveActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
-
-        //Check WiFi Status
-        wifi = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if (type.startsWith("text/")) {
@@ -50,7 +49,7 @@ public class ReceiveActivity extends AppCompatActivity {
     }
 
     private void handleSendImage(Intent intent) {
-        Uri BitmapUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+       // Uri BitmapUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         Toast.makeText(this, R.string.in_progress,
                 Toast.LENGTH_SHORT).show();
     }
@@ -61,44 +60,47 @@ public class ReceiveActivity extends AppCompatActivity {
         sendMessage(url);
     }
 
-
-    private void sendMessage(String msg) throws IllegalArgumentException {
-        if (wifi.isWifiEnabled()) {
+    static void sendMessage(String msg) throws IllegalArgumentException {
+        wifi = (WifiManager) MyApp.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        boolean isWifiEnabled = wifi.isWifiEnabled();
+        if (isWifiEnabled) {
             try {
                 new Client(msg);
-                Toast.makeText(this, R.string.message_sent,
-                        Toast.LENGTH_SHORT).show();
-            } catch (IllegalArgumentException e) {
-                Toast.makeText(this, R.string.server_offline,
-                        Toast.LENGTH_LONG).show();
-                throw e;
+                Log.i(TAG, "Sent Message");
+                Toast.makeText(MyApp.getContext(), message_sent,
+                        LENGTH_SHORT).show();
+            } catch (IllegalArgumentException ae) {
+                Log.i(TAG, "Server is Offline");
+                Toast.makeText(MyApp.getContext(), server_offline,
+                        LENGTH_LONG).show();
+                throw ae;
             } catch (Exception e) {
-                Log.e(TAG, e.toString());
-                Toast.makeText(this, R.string.share_error + e.toString(),
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(MyApp.getContext(), share_error + e.toString(),
+                        LENGTH_LONG).show();
             }
         } else {
-            Toast.makeText(this, R.string.wifi_off,
-                    Toast.LENGTH_LONG).show();
-        }
+            Log.i(TAG, "No Wifi");
+             Toast.makeText(MyApp.getContext(), wifi_off,
+                     LENGTH_LONG).show();
+     }
     }
 
-    void sendImage(Uri BitmapUri) {
+   /* void sendImage(Uri BitmapUri) {
         try {
             final InputStream imageStream = getContentResolver().openInputStream(BitmapUri);
             final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            selectedImage.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-            String bitmap = bos.toString();
+            selectedImage.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/
+         /*   String bitmap = bos.toString();
             String msg = "IMG" + bitmap;
             sendMessage(msg);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
-
+*/
     static void DisableSharing() {
-        PackageManager pm = MainActivity.getContext().getPackageManager();
+        PackageManager pm = MyApp.getContext().getPackageManager();
         ComponentName compName =
                 new ComponentName("com.usoroos.usorosyncprototype", "com.usoroos.usorosyncprototype" + ".ReceiveActivity");
         pm.setComponentEnabledSetting(
@@ -108,7 +110,7 @@ public class ReceiveActivity extends AppCompatActivity {
     }
 
     static void EnableSharing() {
-        PackageManager pm = MainActivity.getContext().getPackageManager();
+        PackageManager pm = MyApp.getContext().getPackageManager();
         ComponentName compName =
                 new ComponentName("com.usoroos.usorosyncprototype", "com.usoroos.usorosyncprototype" + ".ReceiveActivity");
         pm.setComponentEnabledSetting(

@@ -9,8 +9,7 @@
     </style>
 
     <!-- No ui for appcompat -->
-    <style name="NoUiAppTheme"
-        parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="NoUiAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@null</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsTranslucent">true</item>
@@ -18,5 +17,14 @@
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowNoDisplay">true</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

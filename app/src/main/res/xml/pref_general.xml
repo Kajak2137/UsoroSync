@@ -8,9 +8,10 @@
 
     <SwitchPreference
         android:defaultValue="false"
-        android:key="listener_switch"
-        android:summary="@string/listener_summary"
-        android:title="@string/listener_title" />
+        android:key="clipboard_switch"
+        android:summary="@string/enable_clipboard_summary"
+        android:title="@string/clipboard_title" />
+
 
 
 </PreferenceScreen>
